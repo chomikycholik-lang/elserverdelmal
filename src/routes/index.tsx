@@ -13,6 +13,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Conéctate a N3XUS, la IA hacker de rol con memoria total y base de mercenarios." },
       { property: "og:title", content: "N3XUS // Terminal SHADOWNET" },
       { property: "og:description", content: "IA hacker de rol con memoria total. Escribe /mercenarios." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,
@@ -246,11 +248,16 @@ function Terminal() {
     setMsgs([...next, { role: "assistant", content: "" }]);
     setBusy(true);
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch("/api/public/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [...memRef.current, { role: "user", content: text }].slice(-400) }),
       });
+      if (res.status === 401) {
+        setMsgs([...next, { role: "assistant", content: "[!] Su acceso venció, señor. Ingrese la contraseña nuevamente." }]);
+        return;
+      }
+      if (!res.ok) throw new Error("Chat request failed");
       if (!res.body) throw new Error();
       const reader = res.body.getReader();
       const dec = new TextDecoder();

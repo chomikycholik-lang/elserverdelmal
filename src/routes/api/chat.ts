@@ -32,10 +32,8 @@ export const Route = createFileRoute("/api/chat")({
     handlers: {
       POST: async ({ request }) => {
         const { useSession } = await import("@tanstack/react-start/server");
-        const session = await useSession<{ unlocked?: boolean }>({
-          password: process.env["SESSION_SECRET"]!,
-          name: "n3xus-gate",
-        });
+        const { getGateSessionConfig } = await import("@/lib/gate-session.server");
+        const session = await useSession<{ unlocked?: boolean }>(getGateSessionConfig());
         if (!session.data.unlocked) return new Response("Unauthorized", { status: 401 });
         const parsed = Body.safeParse(await request.json().catch(() => null));
         if (!parsed.success) return new Response("Bad request", { status: 400 });
