@@ -88,7 +88,7 @@ function Laugh() {
   );
 }
 
-function Login({ onOk, onFail }: { onOk: () => void; onFail: () => void }) {
+function Login({ onOk, onFail }: { onOk: (token: string) => void; onFail: () => void }) {
   const unlock = useServerFn(unlockSite);
   const [pw, setPw] = useState("");
   const [busy, setBusy] = useState(false);
@@ -98,7 +98,7 @@ function Login({ onOk, onFail }: { onOk: () => void; onFail: () => void }) {
     setBusy(true);
     try {
       const r = await unlock({ data: { password: pw } });
-      if (r.ok) onOk();
+      if (r.ok) onOk(r.token);
       else onFail();
     } finally {
       setBusy(false);
@@ -130,10 +130,14 @@ function Login({ onOk, onFail }: { onOk: () => void; onFail: () => void }) {
 
 function Index() {
   const [stage, setStage] = useState<"check" | "login" | "laugh" | "ok">("check");
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   useEffect(() => {
     if (localStorage.getItem(LOCK)) return setStage("laugh");
     isUnlocked()
-      .then((r) => setStage(r.unlocked ? "ok" : "login"))
+      .then((r) => {
+        setSessionToken(r.token);
+        setStage(r.unlocked ? "ok" : "login");
+      })
       .catch(() => setStage("login"));
   }, []);
   if (stage === "check") return <div className="min-h-screen" />;
@@ -141,17 +145,20 @@ function Index() {
   if (stage === "login")
     return (
       <Login
-        onOk={() => setStage("ok")}
+        onOk={(token) => {
+          setSessionToken(token);
+          setStage("ok");
+        }}
         onFail={() => {
           localStorage.setItem(LOCK, "1");
           setStage("laugh");
         }}
       />
     );
-  return <Terminal />;
+  return <Terminal sessionToken={sessionToken} />;
 }
 
-function Terminal() {
+function Terminal({ sessionToken }: { sessionToken: string | null }) {
   const [booted, setBooted] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   // Memoria a largo plazo: todo lo dicho en sesiones anteriores (no se muestra en pantalla).
@@ -250,13 +257,12 @@ function Terminal() {
     try {
       const res = await fetch("/api/public/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(sessionToken ? { "x-n3xus-session": sessionToken } : {}),
+        },
         body: JSON.stringify({ messages: [...memRef.current, { role: "user", content: text }].slice(-400) }),
       });
-      if (res.status === 401) {
-        setMsgs([...next, { role: "assistant", content: "[!] Su acceso venció, señor. Ingrese la contraseña nuevamente." }]);
-        return;
-      }
       if (!res.ok) throw new Error("Chat request failed");
       if (!res.body) throw new Error();
       const reader = res.body.getReader();

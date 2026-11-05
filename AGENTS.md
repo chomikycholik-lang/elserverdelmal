@@ -31,3 +31,4 @@ use the editor.
 
 - Share encrypted gate session configuration through a server-only helper so login and chat validate the same cookie.
 - Keep the raw streaming chat endpoint under `/api/public/chat` and verify the encrypted gate session before processing input; hosted API authentication must not replace the site's shared-password gate.
+- Return a sealed session after successful password verification and hold it only in React memory for chat headers; verify its seal server-side as a fallback when hosted forwarding omits cookies.
