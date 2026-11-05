@@ -15,13 +15,15 @@ async function send() {
   if (!post || typeof post === "function" || typeof post.POST !== "function") {
     throw new Error("Chat POST handler missing");
   }
-  return post.POST({
+  const response = await post.POST({
     request: new Request("https://example.test/api/public/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [{ role: "user", content: "hola" }] }),
     }),
   } as Parameters<typeof post.POST>[0]);
+  if (!(response instanceof Response)) throw new Error("Chat did not return a response");
+  return response;
 }
 
 afterEach(() => {
