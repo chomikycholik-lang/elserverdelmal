@@ -118,6 +118,15 @@ function Index() {
       setMsgs([]);
       return;
     }
+    if (text.toLowerCase().startsWith("/cancelar")) {
+      const pair: Msg[] = [
+        { role: "user", content: text },
+        { role: "assistant", content: "[!] Orden cancelada, señor. Las señales fueron interceptadas antes de ejecutarse: canal cerrado y rastros eliminados." },
+      ];
+      remember(pair);
+      setMsgs((m) => [...m, ...pair]);
+      return;
+    }
     if (text.toLowerCase().startsWith("/mercenarios")) {
       const pair: Msg[] = [{ role: "user", content: text }, { role: "assistant", content: generarMercenarios() }];
       remember(pair);
@@ -148,7 +157,7 @@ function Index() {
         }, 120);
       });
       await new Promise((r) => setTimeout(r, 400));
-      const ok = `[OK] Señales enviadas exitosamente, señor. ${nombres.length ? dest + " confirmaron" : "Los asociados confirmaron"} la recepción y ya están en movimiento.`;
+      const ok = `[OK] Transmisión completada, señor. Las señales llegaron a ${dest}: paquete cifrado entregado, integridad verificada y acuse de recibo confirmado.\n\n_Si desea cancelar la orden, escriba **/cancelar**._`;
       const final: Msg[] = [...base, { role: "assistant", content: bar(100) }, { role: "assistant", content: ok }];
       setMsgs(final);
       remember([{ role: "user", content: text }, { role: "assistant", content: `Sí, señor. Mandando señales a: ${dest}. ${ok}` }]);
@@ -195,7 +204,7 @@ function Index() {
       <header className="flex items-center justify-between border-b border-border px-4 py-2">
         <span className="glow">N3XUS@shadownet:~$</span>
         <span className="text-sm text-muted-foreground">
-          memoria: {memCount} registros · /mercenarios · /borrar
+          memoria: {memCount} registros · /mercenarios · /cancelar · /borrar
         </span>
       </header>
       <main className="flex-1 overflow-y-auto px-4 py-4">
