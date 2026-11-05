@@ -14,20 +14,19 @@ export function generarMercenarios(n = 8): string {
     used.add(alias);
     const id = "MX-" + Math.floor(1000 + Math.random() * 9000);
     const nivel = "★".repeat(1 + Math.floor(Math.random() * 5));
-    const precio = (50 + Math.floor(Math.random() * 950)) * 10000;
-    rows.push(`| ${id} | **${alias}** | ${pick(ESP)} | ${pick(ORIGEN)} | ${nivel} | ARS $${precio.toLocaleString("es-AR")} | ${pick(ESTADO)} |`);
+    rows.push(`| ${id} | **${alias}** | ${pick(ESP)} | ${pick(ORIGEN)} | ${nivel} | ${pick(ESTADO)} |`);
   }
   return [
     "```",
     ">> ACCEDIENDO A /db/mercenarios ... [OK]",
     ">> DESCIFRANDO REGISTROS ......... [OK]",
-    `>> ${n} CONTRATISTAS ENCONTRADOS`,
+    `>> ${n} ASOCIADOS BAJO TU MANDO, COMANDANTE`,
     "```",
     "",
-    "| ID | ALIAS | ESPECIALIDAD | ORIGEN | NIVEL | TARIFA | ESTADO |",
-    "|---|---|---|---|---|---|---|",
+    "| ID | ALIAS | ESPECIALIDAD | ORIGEN | NIVEL | ESTADO |",
+    "|---|---|---|---|---|---|",
     ...rows,
     "",
-    "_Lista guardada en memoria. Pregúntale a N3XUS por cualquiera de ellos o contrátalos._",
+    "_Asociados registrados en memoria. Dales órdenes, Comandante: N3XUS las transmite._",
   ].join("\n");
 }

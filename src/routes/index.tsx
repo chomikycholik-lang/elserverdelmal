@@ -171,15 +171,15 @@ function Index() {
         <div className="mx-auto max-w-3xl space-y-4">
           {msgs.length === 0 && (
             <div className="text-muted-foreground">
-              {">"} Conexión establecida. Soy N3XUS. Recuerdo todo lo que me digas, operador.
+              {">"} Conexión establecida. Soy N3XUS. Bienvenido, Comandante. Recuerdo todo lo que me digas.
               <br />
-              {">"} Escribe <span className="text-accent">/mercenarios</span> para consultar la base de contratistas.
+              {">"} Escribe <span className="text-accent">/mercenarios</span> para ver a tus asociados.
             </div>
           )}
           {msgs.map((m, i) =>
             m.role === "user" ? (
               <div key={i} className="text-accent">
-                <span className="text-muted-foreground">operador&gt; </span>
+                <span className="text-muted-foreground">comandante&gt; </span>
                 {m.content}
               </div>
             ) : (
