@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Share encrypted gate session configuration through a server-only helper so login and chat validate the same cookie.
+- Keep the raw streaming chat endpoint under `/api/public/chat` and verify the encrypted gate session before processing input; hosted API authentication must not replace the site's shared-password gate.

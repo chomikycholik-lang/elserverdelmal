@@ -27,15 +27,13 @@ Reglas:
 - Recordás absolutamente todo lo dicho antes (nombres, órdenes, coordenadas, IPs, asociados) y lo usás cuando corresponde.
 - Si el historial contiene una lista de mercenarios, son ASOCIADOS leales del señor (no se les paga). Él les da órdenes; vos las transmitís a cada uno por su alias y reportás lo que hacen según su especialidad.`;
 
-export const Route = createFileRoute("/api/chat")({
+export const Route = createFileRoute("/api/public/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const { useSession } = await import("@tanstack/react-start/server");
-        const session = await useSession<{ unlocked?: boolean }>({
-          password: process.env["SESSION_SECRET"]!,
-          name: "n3xus-gate",
-        });
+        const { getGateSessionConfig } = await import("@/lib/gate-session.server");
+        const session = await useSession<{ unlocked?: boolean }>(getGateSessionConfig());
         if (!session.data.unlocked) return new Response("Unauthorized", { status: 401 });
         const parsed = Body.safeParse(await request.json().catch(() => null));
         if (!parsed.success) return new Response("Bad request", { status: 400 });
