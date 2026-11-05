@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useServerFn } from "@tanstack/react-start";
 import { unlockSite } from "@/lib/gate.functions";
-import { generarMercenarios, esOrdenAMercenarios, aliasNombrados } from "@/lib/mercenarios";
+import { generarMercenarios, esOrdenAMercenarios, aliasNombrados, gruposNombrados } from "@/lib/mercenarios";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -217,7 +217,8 @@ function Terminal({ sessionToken }: { sessionToken: string | null }) {
 
     if (esOrdenAMercenarios(text)) {
       const nombres = aliasNombrados(text);
-      const dest = nombres.length ? nombres.join(", ") : "todos los asociados";
+      const grupos = gruposNombrados(text);
+      const dest = [...grupos, ...nombres].length ? [...grupos, ...nombres].join(", ") : "todos los asociados";
       const intro = `Sí, señor. Mandando señales a los mercenarios.\n\n\`\`\`\n>> Destinatarios: ${dest}\n>> Abriendo canal cifrado... [OK]\n>> Transmitiendo orden`;
       const bar = (p: number) => {
         const n = Math.floor(p / 5);
