@@ -39,7 +39,7 @@ export const Route = createFileRoute("/api/public/chat")({
         if (!unlocked && token && token.length < 8192) {
           try {
             const verified = await unsealSession(getGateSessionConfig(), token);
-            unlocked = verified.data?.unlocked === true;
+            unlocked = verified.data?.["unlocked"] === true;
           } catch {
             unlocked = false;
           }
