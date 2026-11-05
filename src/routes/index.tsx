@@ -75,6 +75,9 @@ function Boot({ onDone }: { onDone: () => void }) {
 function Index() {
   const [booted, setBooted] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
+  // Memoria a largo plazo: todo lo dicho en sesiones anteriores (no se muestra en pantalla).
+  const memRef = useRef<Msg[]>([]);
+  const [memCount, setMemCount] = useState(0);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -83,16 +86,24 @@ function Index() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setMsgs(JSON.parse(raw));
+      if (raw) {
+        memRef.current = JSON.parse(raw);
+        setMemCount(memRef.current.length);
+      }
     } catch {}
   }, []);
   useEffect(() => {
-    if (msgs.length) localStorage.setItem(KEY, JSON.stringify(msgs));
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs]);
   useEffect(() => {
     if (booted && !busy) inputRef.current?.focus();
   }, [booted, busy]);
+
+  function remember(add: Msg[]) {
+    memRef.current = [...memRef.current, ...add];
+    localStorage.setItem(KEY, JSON.stringify(memRef.current));
+    setMemCount(memRef.current.length);
+  }
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
@@ -102,11 +113,15 @@ function Index() {
 
     if (text.toLowerCase() === "/borrar") {
       localStorage.removeItem(KEY);
+      memRef.current = [];
+      setMemCount(0);
       setMsgs([]);
       return;
     }
     if (text.toLowerCase().startsWith("/mercenarios")) {
-      setMsgs((m) => [...m, { role: "user", content: text }, { role: "assistant", content: generarMercenarios() }]);
+      const pair: Msg[] = [{ role: "user", content: text }, { role: "assistant", content: generarMercenarios() }];
+      remember(pair);
+      setMsgs((m) => [...m, ...pair]);
       return;
     }
 
@@ -117,7 +132,7 @@ function Index() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.slice(-400) }),
+        body: JSON.stringify({ messages: [...memRef.current, { role: "user", content: text }].slice(-400) }),
       });
       if (!res.body) throw new Error();
       const reader = res.body.getReader();
@@ -129,6 +144,7 @@ function Index() {
         acc += dec.decode(value, { stream: true });
         setMsgs([...next, { role: "assistant", content: acc }]);
       }
+      remember([{ role: "user", content: text }, { role: "assistant", content: acc }]);
     } catch {
       setMsgs([...next, { role: "assistant", content: "[!] Fallo de conexión con SHADOWNET." }]);
     } finally {
@@ -148,7 +164,7 @@ function Index() {
       <header className="flex items-center justify-between border-b border-border px-4 py-2">
         <span className="glow">N3XUS@shadownet:~$</span>
         <span className="text-sm text-muted-foreground">
-          memoria: {msgs.length} registros · /mercenarios · /borrar
+          memoria: {memCount} registros · /mercenarios · /borrar
         </span>
       </header>
       <main className="flex-1 overflow-y-auto px-4 py-4">
