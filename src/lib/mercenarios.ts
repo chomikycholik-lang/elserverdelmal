@@ -34,8 +34,18 @@ export function generarMercenarios(n = 8): string {
 const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 const STEMS = ALIAS.map((a) => norm(a.replace(/^(El|La)/, "")).slice(0, 4));
 
-/** Detecta si el mensaje es una orden dirigida a uno o más asociados. */
-export function esOrdenAMercenarios(texto: string): boolean {
+/** Devuelve los alias de asociados nombrados en el mensaje. */
+export function aliasNombrados(texto: string): string[] {
   const words = norm(texto).split(/[^a-z0-9]+/);
-  return STEMS.some((st) => words.some((w) => w.startsWith(st) || w.startsWith("el" + st) || w.startsWith("la" + st)));
+  return ALIAS.filter((_, i) => {
+    const st = STEMS[i]!;
+    return words.some((w) => w.startsWith(st) || w.startsWith("el" + st) || w.startsWith("la" + st));
+  });
+}
+
+const VERBOS = /\b(manda|mande|mandá|mandar|envia|envie|enviá|enviar|despliega|desplegá|desplegar|ordena|ordená)/i;
+
+/** Detecta si el mensaje es una orden: nombra asociados o usa un verbo de envío. */
+export function esOrdenAMercenarios(texto: string): boolean {
+  return aliasNombrados(texto).length > 0 || VERBOS.test(texto);
 }
