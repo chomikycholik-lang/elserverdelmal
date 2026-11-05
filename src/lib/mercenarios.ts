@@ -1,38 +1,90 @@
-export const ALIAS = ["ElPatova", "ElTano", "LaRusa", "ElChino", "ElTurco", "ElFlaco", "ElGordoBit", "LaPiba", "ElNegroCode", "ElPibeWifi", "ElRulo", "ElColo", "LaTigresa", "ElCabezón", "ElPelado", "ElBicho", "ElMono", "LaBruja", "ElTitán", "ElFantasma"];
-const ESP = ["Hackeo", "Hackeo de redes", "Hackeo de cámaras", "Combate con armas de fuego", "Tirador experto", "Combate con escopeta", "Rastreo", "Rastreo satelital", "Rastreo de celulares"];
-const ORIGEN = ["Merlo", "Moreno", "Laferrere", "La Matanza", "Quilmes", "Lanús", "Avellaneda", "Morón", "Ituzaingó", "San Justo", "Florencio Varela", "Berazategui", "José C. Paz", "Ciudad Evita", "Lomas de Zamora", "Castelar"];
-const ESTADO = ["DISPONIBLE", "EN MISIÓN", "BUSCADO", "DISPONIBLE", "DISPONIBLE"];
+type Operativo = { alias: string; origen: string };
 
+type Grupo = {
+  nombre: string;
+  ocupacion: string;
+  operativos: Operativo[];
+};
+
+const GRUPOS: Grupo[] = [
+  {
+    nombre: "GRUPO ALPHA",
+    ocupacion: "Cibertracking",
+    operativos: [
+      { alias: "ElNegroCode", origen: "Merlo" },
+      { alias: "ElPibeWifi", origen: "Moreno" },
+      { alias: "LaRusa", origen: "La Matanza" },
+      { alias: "ElRulo", origen: "Quilmes" },
+    ],
+  },
+  {
+    nombre: "GRUPO DELTA",
+    ocupacion: "Armas de fuego",
+    operativos: [
+      { alias: "ElPatova", origen: "Laferrere" },
+      { alias: "ElTano", origen: "Avellaneda" },
+      { alias: "ElColo", origen: "Morón" },
+      { alias: "LaTigresa", origen: "Lanús" },
+    ],
+  },
+  {
+    nombre: "GRUPO FANTASMA",
+    ocupacion: "Rastreo",
+    operativos: [
+      { alias: "ElFantasma", origen: "San Justo" },
+      { alias: "ElBicho", origen: "Florencio Varela" },
+      { alias: "ElMono", origen: "Berazategui" },
+      { alias: "ElFlaco", origen: "Lomas de Zamora" },
+    ],
+  },
+  {
+    nombre: "GRUPO TITÁN",
+    ocupacion: "Asalto táctico",
+    operativos: [
+      { alias: "ElTitán", origen: "José C. Paz" },
+      { alias: "ElCabezón", origen: "Ciudad Evita" },
+      { alias: "ElPelado", origen: "Castelar" },
+      { alias: "ElGordoBit", origen: "Ituzaingó" },
+    ],
+  },
+];
+
+export const ALIAS = GRUPOS.flatMap((g) => g.operativos.map((o) => o.alias));
+
+const ESTADO = ["DISPONIBLE", "EN MISIÓN", "BUSCADO", "DISPONIBLE", "DISPONIBLE"];
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)] as T;
 
-export function generarMercenarios(n = 8): string {
-  const used = new Set<string>();
-  const rows: string[] = [];
-  while (rows.length < n) {
-    const alias = pick(ALIAS);
-    if (used.has(alias)) continue;
-    used.add(alias);
-    const id = "MX-" + Math.floor(1000 + Math.random() * 9000);
-    const nivel = "★".repeat(1 + Math.floor(Math.random() * 5));
-    rows.push(`| ${id} | **${alias}** | ${pick(ESP)} | ${pick(ORIGEN)} | ${nivel} | ${pick(ESTADO)} |`);
-  }
+export function generarMercenarios(): string {
+  const total = ALIAS.length;
+  const secciones = GRUPOS.map((g) => {
+    const rows = g.operativos.map((o, i) => {
+      const id = g.nombre.split(" ")[1]!.slice(0, 1) + "-" + (101 + i * 7 + Math.floor(Math.random() * 5));
+      const rango = i === 0 ? "JEFE DE GRUPO" : "OPERATIVO";
+      return `| ${id} | **${o.alias}** | ${rango} | ${o.origen} | ${pick(ESTADO)} |`;
+    });
+    return [
+      `### ${g.nombre} — ${g.ocupacion.toUpperCase()}`,
+      "",
+      "| ID | ALIAS | RANGO | ORIGEN | ESTADO |",
+      "|---|---|---|---|---|",
+      ...rows,
+    ].join("\n");
+  });
   return [
     "```",
     ">> ACCEDIENDO A /db/mercenarios ... [OK]",
     ">> DESCIFRANDO REGISTROS ......... [OK]",
-    `>> ${n} ASOCIADOS DISPONIBLES, SEÑOR`,
+    `>> ${GRUPOS.length} GRUPOS · ${total} ASOCIADOS BAJO SU MANDO, SEÑOR`,
     "```",
     "",
-    "| ID | ALIAS | ESPECIALIDAD | ORIGEN | NIVEL | ESTADO |",
-    "|---|---|---|---|---|---|",
-    ...rows,
-    "",
-    "_Asociados registrados en memoria. Deme sus órdenes, señor, y las transmito._",
+    ...secciones.flatMap((s) => [s, ""]),
+    "_Asociados registrados en memoria. Deme sus órdenes, señor, y las transmito al grupo que indique._",
   ].join("\n");
 }
 
 const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 const STEMS = ALIAS.map((a) => norm(a.replace(/^(El|La)/, "")).slice(0, 4));
+const GRUPO_STEMS = GRUPOS.map((g) => norm(g.nombre.split(" ")[1]!));
 
 /** Devuelve los alias de asociados nombrados en el mensaje. */
 export function aliasNombrados(texto: string): string[] {
@@ -43,9 +95,15 @@ export function aliasNombrados(texto: string): string[] {
   });
 }
 
+/** Devuelve los nombres de grupos nombrados en el mensaje (ej. "grupo delta"). */
+export function gruposNombrados(texto: string): string[] {
+  const words = norm(texto).split(/[^a-z0-9]+/);
+  return GRUPOS.filter((g, i) => words.includes(GRUPO_STEMS[i]!)).map((g) => g.nombre);
+}
+
 const VERBOS = /\b(manda|mande|mandá|mandar|envia|envie|enviá|enviar|despliega|desplegá|desplegar|ordena|ordená)/i;
 
-/** Detecta si el mensaje es una orden: nombra asociados o usa un verbo de envío. */
+/** Detecta si el mensaje es una orden: nombra asociados, grupos o usa un verbo de envío. */
 export function esOrdenAMercenarios(texto: string): boolean {
-  return aliasNombrados(texto).length > 0 || VERBOS.test(texto);
+  return aliasNombrados(texto).length > 0 || gruposNombrados(texto).length > 0 || VERBOS.test(texto);
 }
