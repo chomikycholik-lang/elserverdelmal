@@ -161,3 +161,8 @@
 .term-md strong { color: var(--color-accent); }
 .term-md p, .term-md ul, .term-md ol { margin: .35rem 0; }
 .term-md ul { list-style: square; padding-left: 1.25rem; }
+
+.laugh { animation: laugh 0.35s ease-in-out infinite alternate; }
+@keyframes laugh { from { transform: rotate(-12deg) scale(1); } to { transform: rotate(12deg) scale(1.15); } }
+.glitch { animation: glitch 0.3s steps(2) infinite; text-shadow: 3px 0 var(--color-primary), -3px 0 var(--color-accent); }
+@keyframes glitch { 0% { transform: translate(0); } 50% { transform: translate(-3px, 2px); } 100% { transform: translate(3px, -2px); } }

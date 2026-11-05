@@ -35,9 +35,3 @@ export const isUnlocked = createServerFn({ method: "GET" }).handler(async () => 
   const session = await useSession<GateSession>(sessionConfig());
   return { unlocked: !!session.data.unlocked };
 });
-
-/** Server-only check reused by the chat endpoint. */
-export async function requestIsUnlocked() {
-  const session = await useSession<GateSession>(sessionConfig());
-  return !!session.data.unlocked;
-}
