@@ -3,7 +3,7 @@ const ESP = ["Infiltración", "Criptografía", "Explosivos", "Francotirador", "I
 const ORIGEN = ["Neo-Tokio", "Berlín Sector 9", "Buenos Aires Underground", "Lagos Free Zone", "Ciudad Kowloon II", "Estación Orbital Kepler", "Ruinas de Detroit", "Montevideo Grid"];
 const ESTADO = ["DISPONIBLE", "EN MISIÓN", "BUSCADO", "DISPONIBLE", "DISPONIBLE"];
 
-const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
+const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)] as T;
 
 export function generarMercenarios(n = 8): string {
   const used = new Set<string>();
