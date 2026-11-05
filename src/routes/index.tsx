@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { generarMercenarios, esOrdenAMercenarios } from "@/lib/mercenarios";
+import { generarMercenarios, esOrdenAMercenarios, aliasNombrados } from "@/lib/mercenarios";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -126,12 +126,33 @@ function Index() {
     }
 
     if (esOrdenAMercenarios(text)) {
-      const pair: Msg[] = [
-        { role: "user", content: text },
-        { role: "assistant", content: "Sí, señor. Señales mandadas a los mercenarios." },
-      ];
-      remember(pair);
-      setMsgs((m) => [...m, ...pair]);
+      const nombres = aliasNombrados(text);
+      const dest = nombres.length ? nombres.join(", ") : "todos los asociados";
+      const intro = `Sí, señor. Mandando señales a los mercenarios.\n\n\`\`\`\n>> Destinatarios: ${dest}\n>> Abriendo canal cifrado... [OK]\n>> Transmitiendo orden`;
+      const bar = (p: number) => {
+        const n = Math.floor(p / 5);
+        return `${intro}\n[${"█".repeat(n)}${"░".repeat(20 - n)}] ${p}%\n\`\`\``;
+      };
+      const base: Msg[] = [...msgs, { role: "user", content: text }];
+      setMsgs([...base, { role: "assistant", content: bar(0) }]);
+      setBusy(true);
+      let p = 0;
+      await new Promise<void>((resolve) => {
+        const t = setInterval(() => {
+          p = Math.min(100, p + 3 + Math.floor(Math.random() * 7));
+          setMsgs([...base, { role: "assistant", content: bar(p) }]);
+          if (p >= 100) {
+            clearInterval(t);
+            resolve();
+          }
+        }, 120);
+      });
+      await new Promise((r) => setTimeout(r, 400));
+      const ok = `[OK] Señales enviadas exitosamente, señor. ${nombres.length ? dest + " confirmaron" : "Los asociados confirmaron"} la recepción y ya están en movimiento.`;
+      const final: Msg[] = [...base, { role: "assistant", content: bar(100) }, { role: "assistant", content: ok }];
+      setMsgs(final);
+      remember([{ role: "user", content: text }, { role: "assistant", content: `Sí, señor. Mandando señales a: ${dest}. ${ok}` }]);
+      setBusy(false);
       return;
     }
 
