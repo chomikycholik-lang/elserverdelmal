@@ -31,10 +31,20 @@ export const Route = createFileRoute("/api/public/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { useSession } = await import("@tanstack/react-start/server");
+        const { unsealSession, useSession } = await import("@tanstack/react-start/server");
         const { getGateSessionConfig } = await import("@/lib/gate-session.server");
         const session = await useSession<{ unlocked?: boolean }>(getGateSessionConfig());
-        if (!session.data.unlocked) return new Response("Unauthorized", { status: 401 });
+        let unlocked = session.data.unlocked === true;
+        const token = request.headers.get("x-n3xus-session");
+        if (!unlocked && token && token.length < 8192) {
+          try {
+            const verified = await unsealSession(getGateSessionConfig(), token);
+            unlocked = verified.data?.["unlocked"] === true;
+          } catch {
+            unlocked = false;
+          }
+        }
+        if (!unlocked) return new Response("Unauthorized", { status: 401 });
         const parsed = Body.safeParse(await request.json().catch(() => null));
         if (!parsed.success) return new Response("Bad request", { status: 400 });
         const { streamResponse, GatewayError } = await import("@lovable.dev/ai-gateway");
