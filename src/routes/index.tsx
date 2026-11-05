@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useServerFn } from "@tanstack/react-start";
-import { unlockSite, isUnlocked } from "@/lib/gate.functions";
+import { unlockSite } from "@/lib/gate.functions";
 import { generarMercenarios, esOrdenAMercenarios, aliasNombrados } from "@/lib/mercenarios";
 
 export const Route = createFileRoute("/")({
@@ -132,13 +132,8 @@ function Index() {
   const [stage, setStage] = useState<"check" | "login" | "laugh" | "ok">("check");
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   useEffect(() => {
-    if (localStorage.getItem(LOCK)) return setStage("laugh");
-    isUnlocked()
-      .then((r) => {
-        setSessionToken(r.token);
-        setStage(r.unlocked ? "ok" : "login");
-      })
-      .catch(() => setStage("login"));
+    // Siempre pedir la contraseña al abrir la página.
+    setStage(localStorage.getItem(LOCK) ? "laugh" : "login");
   }, []);
   if (stage === "check") return <div className="min-h-screen" />;
   if (stage === "laugh") return <Laugh />;
