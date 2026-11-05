@@ -79,8 +79,8 @@ const LOCK = "n3xus-bloqueado";
 function Laugh() {
   return (
     <div className="crt fixed inset-0 z-40 flex select-none flex-col items-center justify-center gap-6 bg-background">
-      <div className="laugh text-[9rem] leading-none sm:text-[12rem]">😂</div>
-      <div className="glitch text-4xl text-destructive sm:text-6xl">JAJAJAJAJA</div>
+      <div className="laugh">😂</div>
+      <div className="glitch text-destructive">JAJAJAJAJA</div>
       <div className="text-xl text-muted-foreground">ACCESO DENEGADO · INTRUSO DETECTADO · TERMINAL BLOQUEADA</div>
     </div>
   );
