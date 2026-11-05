@@ -20,13 +20,13 @@ export function generarMercenarios(n = 8): string {
     "```",
     ">> ACCEDIENDO A /db/mercenarios ... [OK]",
     ">> DESCIFRANDO REGISTROS ......... [OK]",
-    `>> ${n} ASOCIADOS BAJO TU MANDO, COMANDANTE`,
+    `>> ${n} ASOCIADOS DISPONIBLES, SEÑOR`,
     "```",
     "",
     "| ID | ALIAS | ESPECIALIDAD | ORIGEN | NIVEL | ESTADO |",
     "|---|---|---|---|---|---|",
     ...rows,
     "",
-    "_Asociados registrados en memoria. Dales órdenes, Comandante: N3XUS las transmite._",
+    "_Asociados registrados en memoria. Deme sus órdenes, señor, y las transmito._",
   ].join("\n");
 }
