@@ -1,6 +1,6 @@
-const ALIAS = ["Viper", "Ghost", "Raven", "Kraken", "Nyx", "Byte", "Hex", "Jackal", "Cipher", "Onyx", "Specter", "Wraith", "Glitch", "Mamba", "Zero", "Talon", "Phantom", "Cobalt", "Rogue", "Static"];
-const ESP = ["Infiltración", "Criptografía", "Explosivos", "Francotirador", "Ingeniería social", "Drones", "Hackeo de redes", "Combate cuerpo a cuerpo", "Logística", "Pilotaje", "Falsificación", "Contrainteligencia"];
-const ORIGEN = ["Neo-Tokio", "Berlín Sector 9", "Buenos Aires Underground", "Lagos Free Zone", "Ciudad Kowloon II", "Estación Orbital Kepler", "Ruinas de Detroit", "Montevideo Grid"];
+const ALIAS = ["ElPatova", "ElTano", "LaRusa", "ElChino", "ElTurco", "ElFlaco", "ElGordoBit", "LaPiba", "ElNegroCode", "ElPibeWifi", "ElRulo", "ElColo", "LaTigresa", "ElCabezón", "ElPelado", "ElBicho", "ElMono", "LaBruja", "ElTitán", "ElFantasma"];
+const ESP = ["Hackeo", "Hackeo de redes", "Hackeo de cámaras", "Combate con armas de fuego", "Tirador experto", "Combate con escopeta", "Rastreo", "Rastreo satelital", "Rastreo de celulares"];
+const ORIGEN = ["Merlo", "Moreno", "Laferrere", "La Matanza", "Quilmes", "Lanús", "Avellaneda", "Morón", "Ituzaingó", "San Justo", "Florencio Varela", "Berazategui", "José C. Paz", "Ciudad Evita", "Lomas de Zamora", "Castelar"];
 const ESTADO = ["DISPONIBLE", "EN MISIÓN", "BUSCADO", "DISPONIBLE", "DISPONIBLE"];
 
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)] as T;
@@ -14,8 +14,8 @@ export function generarMercenarios(n = 8): string {
     used.add(alias);
     const id = "MX-" + Math.floor(1000 + Math.random() * 9000);
     const nivel = "★".repeat(1 + Math.floor(Math.random() * 5));
-    const precio = (5 + Math.floor(Math.random() * 95)) * 1000;
-    rows.push(`| ${id} | **${alias}** | ${pick(ESP)} | ${pick(ORIGEN)} | ${nivel} | ${precio.toLocaleString("es-AR")} ₡ | ${pick(ESTADO)} |`);
+    const precio = (50 + Math.floor(Math.random() * 950)) * 10000;
+    rows.push(`| ${id} | **${alias}** | ${pick(ESP)} | ${pick(ORIGEN)} | ${nivel} | ARS $${precio.toLocaleString("es-AR")} | ${pick(ESTADO)} |`);
   }
   return [
     "```",
