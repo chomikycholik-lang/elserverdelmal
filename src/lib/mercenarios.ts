@@ -1,4 +1,4 @@
-const ALIAS = ["ElPatova", "ElTano", "LaRusa", "ElChino", "ElTurco", "ElFlaco", "ElGordoBit", "LaPiba", "ElNegroCode", "ElPibeWifi", "ElRulo", "ElColo", "LaTigresa", "ElCabezón", "ElPelado", "ElBicho", "ElMono", "LaBruja", "ElTitán", "ElFantasma"];
+export const ALIAS = ["ElPatova", "ElTano", "LaRusa", "ElChino", "ElTurco", "ElFlaco", "ElGordoBit", "LaPiba", "ElNegroCode", "ElPibeWifi", "ElRulo", "ElColo", "LaTigresa", "ElCabezón", "ElPelado", "ElBicho", "ElMono", "LaBruja", "ElTitán", "ElFantasma"];
 const ESP = ["Hackeo", "Hackeo de redes", "Hackeo de cámaras", "Combate con armas de fuego", "Tirador experto", "Combate con escopeta", "Rastreo", "Rastreo satelital", "Rastreo de celulares"];
 const ORIGEN = ["Merlo", "Moreno", "Laferrere", "La Matanza", "Quilmes", "Lanús", "Avellaneda", "Morón", "Ituzaingó", "San Justo", "Florencio Varela", "Berazategui", "José C. Paz", "Ciudad Evita", "Lomas de Zamora", "Castelar"];
 const ESTADO = ["DISPONIBLE", "EN MISIÓN", "BUSCADO", "DISPONIBLE", "DISPONIBLE"];
@@ -29,4 +29,13 @@ export function generarMercenarios(n = 8): string {
     "",
     "_Asociados registrados en memoria. Deme sus órdenes, señor, y las transmito._",
   ].join("\n");
+}
+
+const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const STEMS = ALIAS.map((a) => norm(a.replace(/^(El|La)/, "")).slice(0, 4));
+
+/** Detecta si el mensaje es una orden dirigida a uno o más asociados. */
+export function esOrdenAMercenarios(texto: string): boolean {
+  const words = norm(texto).split(/[^a-z0-9]+/);
+  return STEMS.some((st) => words.some((w) => w.startsWith(st) || w.startsWith("el" + st) || w.startsWith("la" + st)));
 }

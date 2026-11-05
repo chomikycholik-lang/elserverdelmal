@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { generarMercenarios } from "@/lib/mercenarios";
+import { generarMercenarios, esOrdenAMercenarios } from "@/lib/mercenarios";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -120,6 +120,16 @@ function Index() {
     }
     if (text.toLowerCase().startsWith("/mercenarios")) {
       const pair: Msg[] = [{ role: "user", content: text }, { role: "assistant", content: generarMercenarios() }];
+      remember(pair);
+      setMsgs((m) => [...m, ...pair]);
+      return;
+    }
+
+    if (esOrdenAMercenarios(text)) {
+      const pair: Msg[] = [
+        { role: "user", content: text },
+        { role: "assistant", content: "Sí, señor. Señales mandadas a los mercenarios." },
+      ];
       remember(pair);
       setMsgs((m) => [...m, ...pair]);
       return;
