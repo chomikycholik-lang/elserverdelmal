@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useServerFn } from "@tanstack/react-start";
+import { unlockSite, isUnlocked } from "@/lib/gate.functions";
 import { generarMercenarios, esOrdenAMercenarios, aliasNombrados } from "@/lib/mercenarios";
 
 export const Route = createFileRoute("/")({
@@ -72,7 +74,82 @@ function Boot({ onDone }: { onDone: () => void }) {
   );
 }
 
+const LOCK = "n3xus-bloqueado";
+
+function Laugh() {
+  return (
+    <div className="crt fixed inset-0 z-40 flex select-none flex-col items-center justify-center gap-6 bg-background">
+      <div className="laugh">😂</div>
+      <div className="glitch text-destructive">JAJAJAJAJA</div>
+      <div className="text-xl text-muted-foreground">ACCESO DENEGADO · INTRUSO DETECTADO · TERMINAL BLOQUEADA</div>
+    </div>
+  );
+}
+
+function Login({ onOk, onFail }: { onOk: () => void; onFail: () => void }) {
+  const unlock = useServerFn(unlockSite);
+  const [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!pw || busy) return;
+    setBusy(true);
+    try {
+      const r = await unlock({ data: { password: pw } });
+      if (r.ok) onOk();
+      else onFail();
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="crt flex min-h-screen items-center justify-center p-6">
+      <form onSubmit={submit} className="w-full max-w-md space-y-4 border border-border bg-card p-6">
+        <div className="glow text-2xl">SHADOWNET // AUTENTICACIÓN</div>
+        <div className="text-muted-foreground">Ingrese la clave de acceso.</div>
+        <div className="flex items-center gap-2 border border-border px-3 py-2">
+          <span className="glow">&gt;</span>
+          <input
+            type="password"
+            autoFocus
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+            className="flex-1 bg-transparent text-foreground outline-none"
+            aria-label="Contraseña"
+          />
+        </div>
+        <button type="submit" disabled={busy} className="w-full border border-border py-2 text-primary hover:bg-secondary disabled:opacity-40">
+          {busy ? "VERIFICANDO..." : "ACCEDER"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function Index() {
+  const [stage, setStage] = useState<"check" | "login" | "laugh" | "ok">("check");
+  useEffect(() => {
+    if (localStorage.getItem(LOCK)) return setStage("laugh");
+    isUnlocked()
+      .then((r) => setStage(r.unlocked ? "ok" : "login"))
+      .catch(() => setStage("login"));
+  }, []);
+  if (stage === "check") return <div className="min-h-screen" />;
+  if (stage === "laugh") return <Laugh />;
+  if (stage === "login")
+    return (
+      <Login
+        onOk={() => setStage("ok")}
+        onFail={() => {
+          localStorage.setItem(LOCK, "1");
+          setStage("laugh");
+        }}
+      />
+    );
+  return <Terminal />;
+}
+
+function Terminal() {
   const [booted, setBooted] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   // Memoria a largo plazo: todo lo dicho en sesiones anteriores (no se muestra en pantalla).
