@@ -361,7 +361,7 @@ function Terminal({
           {msgs.map((m, i) =>
             m.role === "user" ? (
               <div key={i} className="text-accent">
-                <span className="text-muted-foreground">señor&gt; </span>
+                <span className="text-muted-foreground">{cyber ? "operador" : "señor"}&gt; </span>
                 {m.content}
               </div>
             ) : (
