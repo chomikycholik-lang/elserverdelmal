@@ -150,11 +150,44 @@ function Index() {
         }}
       />
     );
-  return <Terminal sessionToken={sessionToken} />;
+  return <Terminales sessionToken={sessionToken} />;
 }
 
-function Terminal({ sessionToken }: { sessionToken: string | null }) {
-  const [booted, setBooted] = useState(false);
+type Modo = "nexus" | "cyber";
+
+function Terminales({ sessionToken }: { sessionToken: string | null }) {
+  const [modo, setModo] = useState<Modo>("nexus");
+  const [nexusLista, setNexusLista] = useState(false);
+  const cambiar = () => setModo((m) => (m === "nexus" ? "cyber" : "nexus"));
+  return (
+    <>
+      <div className={modo === "nexus" ? "" : "hidden"}>
+        <Terminal modo="nexus" sessionToken={sessionToken} onSwitch={cambiar} onBoot={() => setNexusLista(true)} />
+      </div>
+      {nexusLista && (
+        <div className={modo === "cyber" ? "" : "hidden"}>
+          <Terminal modo="cyber" sessionToken={sessionToken} onSwitch={cambiar} />
+        </div>
+      )}
+    </>
+  );
+}
+
+function Terminal({
+  sessionToken,
+  modo,
+  onSwitch,
+  onBoot,
+}: {
+  sessionToken: string | null;
+  modo: Modo;
+  onSwitch: () => void;
+  onBoot?: () => void;
+}) {
+  const cyber = modo === "cyber";
+  const KEY = cyber ? "zer0-memoria" : "n3xus-memoria";
+  const NAME = cyber ? "ZER0" : "N3XUS";
+  const [booted, setBooted] = useState(cyber);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   // Memoria a largo plazo: todo lo dicho en sesiones anteriores (no se muestra en pantalla).
   const memRef = useRef<Msg[]>([]);
@@ -199,7 +232,7 @@ function Terminal({ sessionToken }: { sessionToken: string | null }) {
       setMsgs([]);
       return;
     }
-    if (text.toLowerCase().startsWith("/cancelar")) {
+    if (!cyber && text.toLowerCase().startsWith("/cancelar")) {
       const pair: Msg[] = [
         { role: "user", content: text },
         { role: "assistant", content: "[!] Orden cancelada, señor. Las señales fueron interceptadas antes de ejecutarse: canal cerrado y rastros eliminados." },
@@ -208,14 +241,14 @@ function Terminal({ sessionToken }: { sessionToken: string | null }) {
       setMsgs((m) => [...m, ...pair]);
       return;
     }
-    if (text.toLowerCase().startsWith("/mercenarios")) {
+    if (!cyber && text.toLowerCase().startsWith("/mercenarios")) {
       const pair: Msg[] = [{ role: "user", content: text }, { role: "assistant", content: generarMercenarios() }];
       remember(pair);
       setMsgs((m) => [...m, ...pair]);
       return;
     }
 
-    if (esOrdenAMercenarios(text)) {
+    if (!cyber && esOrdenAMercenarios(text)) {
       const nombres = aliasNombrados(text);
       const grupos = gruposNombrados(text);
       const dest = [...grupos, ...nombres].length ? [...grupos, ...nombres].join(", ") : "todos los asociados";
@@ -257,7 +290,7 @@ function Terminal({ sessionToken }: { sessionToken: string | null }) {
           "Content-Type": "application/json",
           ...(sessionToken ? { "x-n3xus-session": sessionToken } : {}),
         },
-        body: JSON.stringify({ messages: [...memRef.current, { role: "user", content: text }].slice(-400) }),
+        body: JSON.stringify({ persona: modo, messages: [...memRef.current, { role: "user", content: text }].slice(-400) }),
       });
       if (!res.ok) throw new Error("Chat request failed");
       if (!res.body) throw new Error();
@@ -281,25 +314,49 @@ function Terminal({ sessionToken }: { sessionToken: string | null }) {
   if (!booted)
     return (
       <div className="crt">
-        <Boot onDone={() => setBooted(true)} />
+        <Boot
+          onDone={() => {
+            setBooted(true);
+            onBoot?.();
+          }}
+        />
       </div>
     );
 
   return (
-    <div className="crt flex h-screen flex-col">
+    <div className={`crt flex h-screen flex-col ${cyber ? "cyber" : ""}`}>
       <header className="flex items-center justify-between border-b border-border px-4 py-2">
-        <span className="glow">N3XUS@shadownet:~$</span>
-        <span className="text-sm text-muted-foreground">
-          memoria: {memCount} registros · /mercenarios · /cancelar · /borrar
+        <span className="glow">{cyber ? "ZER0@breach:~#" : "N3XUS@shadownet:~$"}</span>
+        <span className="flex items-center gap-3 text-sm text-muted-foreground">
+          <span>
+            memoria: {memCount} · {cyber ? "/borrar" : "/mercenarios · /cancelar · /borrar"}
+          </span>
+          <button
+            type="button"
+            onClick={onSwitch}
+            className="border border-primary px-2 text-primary hover:bg-secondary"
+          >
+            {cyber ? "⇄ N3XUS" : "⇄ ZER0"}
+          </button>
         </span>
       </header>
       <main className="flex-1 overflow-y-auto px-4 py-4">
         <div className="mx-auto max-w-3xl space-y-4">
           {msgs.length === 0 && (
             <div className="text-muted-foreground">
-              {">"} Conexión establecida. Soy N3XUS. Buen día, señor. ¿En qué lo puedo ayudar?
-              <br />
-              {">"} Escribe <span className="text-accent">/mercenarios</span> para ver a tus asociados.
+              {cyber ? (
+                <>
+                  {">"} ZER0 online. Módulo de intrusión cargado.
+                  <br />
+                  {">"} Pase una IP objetivo y empiezo el escaneo.
+                </>
+              ) : (
+                <>
+                  {">"} Conexión establecida. Soy N3XUS. Buen día, señor. ¿En qué lo puedo ayudar?
+                  <br />
+                  {">"} Escribe <span className="text-accent">/mercenarios</span> para ver a tus asociados.
+                </>
+              )}
             </div>
           )}
           {msgs.map((m, i) =>
@@ -310,7 +367,7 @@ function Terminal({ sessionToken }: { sessionToken: string | null }) {
               </div>
             ) : (
               <div key={i} className="term-md glow">
-                <span className="text-muted-foreground">N3XUS&gt; </span>
+                <span className="text-muted-foreground">{NAME}&gt; </span>
                 {m.content ? (
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                 ) : (
@@ -331,7 +388,7 @@ function Terminal({ sessionToken }: { sessionToken: string | null }) {
             onChange={(e) => setInput(e.target.value)}
             disabled={busy}
             maxLength={4000}
-            placeholder={busy ? "N3XUS está escribiendo..." : "escribe un comando o mensaje..."}
+            placeholder={busy ? `${NAME} está escribiendo...` : "escribe un comando o mensaje..."}
             className="flex-1 bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button type="submit" disabled={busy} className="border border-border px-3 text-primary hover:bg-secondary disabled:opacity-40">
