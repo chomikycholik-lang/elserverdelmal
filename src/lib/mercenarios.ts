@@ -11,40 +11,40 @@ const GRUPOS: Grupo[] = [
     nombre: "GRUPO ALPHA",
     ocupacion: "Cibertracking",
     operativos: [
-      { alias: "El Hacker", origen: "Merlo" },
-      { alias: "El Wifi", origen: "Moreno" },
-      { alias: "El Ruso", origen: "La Matanza" },
-      { alias: "El Rulo", origen: "Quilmes" },
+      { alias: "NegroCode", origen: "Merlo" },
+      { alias: "PibeWifi", origen: "Moreno" },
+      { alias: "La Rusa", origen: "La Matanza" },
+      { alias: "Rulo", origen: "Quilmes" },
     ],
   },
   {
     nombre: "GRUPO DELTA",
     ocupacion: "Armas de fuego",
     operativos: [
-      { alias: "El Patova", origen: "Laferrere" },
+      { alias: "Patova", origen: "Laferrere" },
       { alias: "El Tano", origen: "Avellaneda" },
-      { alias: "El Colo", origen: "Morón" },
-      { alias: "El Tigre", origen: "Lanús" },
+      { alias: "Colo", origen: "Morón" },
+      { alias: "La Tigresa", origen: "Lanús" },
     ],
   },
   {
     nombre: "GRUPO FANTASMA",
     ocupacion: "Rastreo",
     operativos: [
-      { alias: "El Fantasma", origen: "San Justo" },
+      { alias: "Fantasma", origen: "San Justo" },
       { alias: "El Bicho", origen: "Florencio Varela" },
-      { alias: "El Mono", origen: "Berazategui" },
-      { alias: "El Flaco", origen: "Lomas de Zamora" },
+      { alias: "Mono", origen: "Berazategui" },
+      { alias: "Flaco", origen: "Lomas de Zamora" },
     ],
   },
   {
     nombre: "GRUPO TITÁN",
     ocupacion: "Asalto táctico",
     operativos: [
-      { alias: "El Titán", origen: "José C. Paz" },
-      { alias: "El Cabezón", origen: "Ciudad Evita" },
+      { alias: "Titán", origen: "José C. Paz" },
+      { alias: "Cabezón", origen: "Ciudad Evita" },
       { alias: "El Pelado", origen: "Castelar" },
-      { alias: "El Gordo", origen: "Ituzaingó" },
+      { alias: "GordoBit", origen: "Ituzaingó" },
     ],
   },
 ];
@@ -83,7 +83,7 @@ export function generarMercenarios(): string {
 }
 
 const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-const STEMS = ALIAS.map((a) => norm(a.replace(/^(El|La)/, "")).slice(0, 4));
+const STEMS = ALIAS.map((a) => norm(a.replace(/^(El|La)\s?/, "")).slice(0, 4));
 const GRUPO_STEMS = GRUPOS.map((g) => norm(g.nombre.split(" ")[1]!));
 
 /** Devuelve los alias de asociados nombrados en el mensaje. */
