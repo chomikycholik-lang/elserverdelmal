@@ -166,3 +166,10 @@
 @keyframes laugh { from { transform: rotate(-12deg) scale(1); } to { transform: rotate(12deg) scale(1.15); } }
 .glitch { font-size: 4rem; animation: glitch 0.3s steps(2) infinite; text-shadow: 3px 0 var(--color-primary), -3px 0 var(--color-accent); }
 @keyframes glitch { 0% { transform: translate(0); } 50% { transform: translate(-3px, 2px); } 100% { transform: translate(3px, -2px); } }
+
+.cyber {
+  --primary: oklch(0.65 0.24 25);
+  --accent: oklch(0.8 0.15 60);
+  --foreground: oklch(0.82 0.12 30);
+}
+.cyber .glow { color: var(--primary); text-shadow: 0 0 6px var(--primary); }
