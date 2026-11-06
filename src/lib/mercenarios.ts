@@ -55,31 +55,21 @@ const ESTADO = ["DISPONIBLE", "EN MISIÓN", "BUSCADO", "DISPONIBLE", "DISPONIBLE
 const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)] as T;
 
 export function generarMercenarios(): string {
-  const total = ALIAS.length;
-  const secciones = GRUPOS.map((g) => {
-    const rows = g.operativos.map((o, i) => {
-      const id = g.nombre.split(" ")[1]!.slice(0, 1) + "-" + (101 + i * 7 + Math.floor(Math.random() * 5));
-      const rango = i === 0 ? "JEFE DE GRUPO" : "OPERATIVO";
-      const nivel = "★".repeat(1 + Math.floor(Math.random() * 5));
-      return `| ${id} | **${o.alias}** | ${rango} | ${o.origen} | ${nivel} | ${pick(ESTADO)} |`;
-    });
-    return [
-      `### ${g.nombre} — ${g.ocupacion.toUpperCase()}`,
-      "",
-      "| ID | ALIAS | RANGO | ORIGEN | NIVEL | ESTADO |",
-      "|---|---|---|---|---|---|",
-      ...rows,
-    ].join("\n");
-  });
+  const rows = GRUPOS.map(
+    (g) => `| **${g.nombre}** | ${g.ocupacion} | ${g.operativos.length} operativos | ${pick(ESTADO)} |`,
+  );
   return [
     "```",
     ">> ACCEDIENDO A /db/mercenarios ... [OK]",
     ">> DESCIFRANDO REGISTROS ......... [OK]",
-    `>> ${GRUPOS.length} GRUPOS · ${total} ASOCIADOS BAJO SU MANDO, SEÑOR`,
+    `>> ${GRUPOS.length} GRUPOS BAJO SU MANDO, SEÑOR`,
     "```",
     "",
-    ...secciones.flatMap((s) => [s, ""]),
-    "_Asociados registrados en memoria. Deme sus órdenes, señor, y las transmito al grupo que indique._",
+    "| GRUPO | OCUPACIÓN | EFECTIVOS | ESTADO |",
+    "|---|---|---|---|",
+    ...rows,
+    "",
+    "_Grupos registrados en memoria. Deme sus órdenes, señor, y las transmito al grupo que indique._",
   ].join("\n");
 }
 
