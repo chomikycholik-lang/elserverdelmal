@@ -333,9 +333,9 @@ function Terminal({
           <button
             type="button"
             onClick={onSwitch}
-            className="border border-primary px-2 text-primary hover:bg-secondary"
+            className="glow border-2 border-primary px-3 py-1 text-base font-bold text-primary hover:bg-secondary"
           >
-            {cyber ? "⇄ N3XUS" : "⇄ ZER0"}
+            {cyber ? "⇄ CAMBIAR A N3XUS" : "⇄ CAMBIAR A ZER0"}
           </button>
         </span>
       </header>
