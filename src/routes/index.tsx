@@ -21,7 +21,6 @@ export const Route = createFileRoute("/")({
 });
 
 type Msg = { role: "user" | "assistant"; content: string };
-const KEY = "n3xus-memoria";
 
 const BOOT = [
   "[BIOS] SHADOWNET v6.6.6 — inicializando kernel...",
