@@ -83,7 +83,7 @@ export function generarMercenarios(): string {
 }
 
 const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-const STEMS = ALIAS.map((a) => norm(a.replace(/^(El|La)/, "")).slice(0, 4));
+const STEMS = ALIAS.map((a) => norm(a.replace(/^(El|La)\s?/, "")).slice(0, 4));
 const GRUPO_STEMS = GRUPOS.map((g) => norm(g.nombre.split(" ")[1]!));
 
 /** Devuelve los alias de asociados nombrados en el mensaje. */
