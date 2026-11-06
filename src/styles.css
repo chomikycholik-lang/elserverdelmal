@@ -173,3 +173,20 @@
   --foreground: oklch(0.82 0.12 30);
 }
 .cyber .glow { color: var(--primary); text-shadow: 0 0 6px var(--primary); }
+
+.switch-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  animation: switch-fx 1.3s ease-in-out forwards;
+}
+.switch-fx.to-red { --from: oklch(0.82 0.24 145); --to: oklch(0.6 0.25 25); }
+.switch-fx.to-green { --from: oklch(0.6 0.25 25); --to: oklch(0.82 0.24 145); }
+@keyframes switch-fx {
+  0% { background: var(--from); opacity: 0; }
+  40% { background: var(--from); opacity: 0.85; }
+  50% { background: color-mix(in oklch, var(--from), var(--to)); opacity: 0.9; }
+  60% { background: var(--to); opacity: 0.85; }
+  100% { background: var(--to); opacity: 0; }
+}

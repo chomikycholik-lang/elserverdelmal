@@ -157,7 +157,14 @@ type Modo = "nexus" | "cyber";
 function Terminales({ sessionToken }: { sessionToken: string | null }) {
   const [modo, setModo] = useState<Modo>("nexus");
   const [nexusLista, setNexusLista] = useState(false);
-  const cambiar = () => setModo((m) => (m === "nexus" ? "cyber" : "nexus"));
+  const [trans, setTrans] = useState<Modo | null>(null);
+  const cambiar = () => {
+    if (trans) return;
+    const destino: Modo = modo === "nexus" ? "cyber" : "nexus";
+    setTrans(destino);
+    setTimeout(() => setModo(destino), 600);
+    setTimeout(() => setTrans(null), 1300);
+  };
   return (
     <>
       <div className={modo === "nexus" ? "" : "hidden"}>
@@ -168,6 +175,7 @@ function Terminales({ sessionToken }: { sessionToken: string | null }) {
           <Terminal modo="cyber" sessionToken={sessionToken} onSwitch={cambiar} />
         </div>
       )}
+      {trans && <div className={`switch-fx ${trans === "cyber" ? "to-red" : "to-green"}`} />}
     </>
   );
 }
