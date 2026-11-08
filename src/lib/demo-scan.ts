@@ -3,7 +3,6 @@ export const DEMO_PROFILE = {
   instagram: ["sombra.demo.uno", "sombra.demo.dos"],
   ip: "192.0.2.115",
   roblox: "sombra_demo_367928",
-  age: 24,
 } as const;
 
 export function isDemoScan(text: string, persona: "nexus" | "cyber") {
@@ -17,5 +16,5 @@ export function demoScanProgress(percent: number) {
 }
 
 export function demoScanReport() {
-  return `[OK] Análisis completado, señor.\n\n\`\`\`\nINFORME FICTICIO — DATOS DE PRUEBA\nDiscord: ${DEMO_PROFILE.discord}\nInstagram: ${DEMO_PROFILE.instagram.join(" · ")}\nIP de documentación: ${DEMO_PROFILE.ip}\nRoblox: ${DEMO_PROFILE.roblox}\nEdad del personaje: ${DEMO_PROFILE.age} años\n\`\`\``;
+  return `[OK] Análisis completado, señor.\n\n\`\`\`\nINFORME FICTICIO — DATOS DE PRUEBA\nDiscord: ${DEMO_PROFILE.discord}\nInstagram: ${DEMO_PROFILE.instagram.join(" · ")}\nIP de documentación: ${DEMO_PROFILE.ip}\nRoblox: ${DEMO_PROFILE.roblox}\n\`\`\``;
 }

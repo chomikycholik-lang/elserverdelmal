@@ -13,8 +13,10 @@ describe("Fictional profile scan", () => {
   it("does not turn arbitrary accounts into demo scan targets", () => {
     expect(isDemoScan('escanea otra.cuenta', "nexus")).toBe(false);
   });
-  it("uses an adult fictional character and a documentation-only address", () => {
-    expect(DEMO_PROFILE.age).toBe(24);
+  it("omits age from the profile data", () => {
+    expect(DEMO_PROFILE).not.toHaveProperty("age");
+  });
+  it("uses a documentation-only address", () => {
     expect(DEMO_PROFILE.ip).toBe("192.0.2.115");
   });
   it("caps scan completion at 100 percent", () => {
