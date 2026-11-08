@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import { useServerFn } from "@tanstack/react-start";
 import { unlockSite } from "@/lib/gate.functions";
 import { generarMercenarios, esOrdenAMercenarios, aliasNombrados, gruposNombrados } from "@/lib/mercenarios";
+import { isDemoScan, demoScanProgress, demoScanReport } from "@/lib/demo-scan";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -252,6 +253,24 @@ function Terminal({
       const pair: Msg[] = [{ role: "user", content: text }, { role: "assistant", content: generarMercenarios() }];
       remember(pair);
       setMsgs((m) => [...m, ...pair]);
+      return;
+    }
+
+    if (isDemoScan(text, modo)) {
+      const base: Msg[] = [...msgs, { role: "user", content: text }];
+      setBusy(true);
+      setMsgs([...base, { role: "assistant", content: demoScanProgress(0) }]);
+      try {
+        for (let progress = 5; progress <= 100; progress += 5) {
+          await new Promise((resolve) => setTimeout(resolve, 120));
+          setMsgs([...base, { role: "assistant", content: demoScanProgress(progress) }]);
+        }
+        const report: Msg = { role: "assistant", content: demoScanReport() };
+        setMsgs([...base, { role: "assistant", content: demoScanProgress(100) }, report]);
+        remember([{ role: "user", content: text }, report]);
+      } finally {
+        setBusy(false);
+      }
       return;
     }
 
